@@ -67,13 +67,13 @@ This product includes color specifications and designs developed by Cynthia Brew
 
 ### Note ###
 
-Compared to other functions available on MATLAB Exchange, this function:
-- Consists of just one convenient M-file (No .mat files).
-- Requires only the standard ColorBrewer scheme name to select the colorscheme.
-- Supports all ColorBrewer colorschemes.
-- Interplolates the complete palette for each scheme (eg. Diverging = 15 colors).
-- Outputs the MATLAB standard N-by-3 numeric RGB array.
-- Default length is the standard MATLAB default colormap length (same length as the current colormap).
-- Is compatible with all MATLAB functions that use colormaps (eg: "contourcmap").
-- Includes the option to reverse the colormap color sequence.
-- Does not break ColorBrewer's Apache license conditions.
+Compared to other functions available on MATLAB File Exchange, this function:
+* Consists of just one convenient M-file (no .mat files).
+* Requires only the standard ColorBrewer scheme name to select the colorscheme.
+* Supports all ColorBrewer colorschemes.
+* Interplolates the complete palette for each scheme (eg. Diverging = 15 colors).
+* Outputs the MATLAB standard N-by-3 numeric RGB array.
+* Default length is the standard MATLAB default colormap length (same length as the current colormap).
+* Is compatible with all MATLAB functions that use colormaps (eg: "contourcmap").
+* Includes the option to reverse the colormap color sequence.
+* Does not break ColorBrewer's Apache license conditions.
