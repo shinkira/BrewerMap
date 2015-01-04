@@ -13,7 +13,7 @@ The function can be used as a drop-in replacement for the inbuilt colormap funct
 
 Calling brewermap('demo') creates a figure that displays all of the ColorBrewer colorschemes.
 
-This product includes color specifications and designs developed by Cynthia Brewer (http://colorbrewer.org/). See the ColorBrewer website for further information about each colorscheme, colorblind suitability, licensing, and citations.
+This product includes color specifications and designs developed by Cynthia Brewer (http://colorbrewer.org/). See the ColorBrewer website for further information about each colorscheme, colorblind suitability, licensing, and citations. This is the only submission on MATLAB File Exchange providing ColorBrewer colorschemes that does NOT break the ColorBrewer license conditions!
 
 ### Examples ###
 
@@ -71,9 +71,15 @@ Compared to other functions available on MATLAB File Exchange, this function:
 * Consists of just one convenient M-file (no .mat files).
 * Requires only the standard ColorBrewer scheme name to select the colorscheme.
 * Supports all ColorBrewer colorschemes.
-* Interplolates the complete palette for each scheme (eg. Diverging = 15 colors).
+* Interpolates the complete palette for each scheme (eg. Diverging = 15 colors).
 * Outputs the MATLAB standard N-by-3 numeric RGB array.
 * Default length is the standard MATLAB default colormap length (same length as the current colormap).
 * Is compatible with all MATLAB functions that use colormaps (eg: "contourcmap").
 * Includes the option to reverse the colormap color sequence.
 * Does not break ColorBrewer's Apache license conditions.
+
+### Note ###
+
+The following files are part of GitHub/git repository, and are not required for using this submission in MATLAB:
+* .gitattributes
+* README.md
