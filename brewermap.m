@@ -20,7 +20,7 @@ function [map,num,typ] = brewermap(N,scheme)
 % See the ColorBrewer website for further information about each colorscheme,
 % colorblind suitability, licensing, and citations: http://colorbrewer.org/
 %
-% See also CUBEHELIX RGBPLOT3 RGBPLOT COLORMAP COLORBAR PLOT PLOT3 SURF CONTOURF IMAGE CONTOURCMAP AXES SET JET LBMAP
+% See also CUBEHELIX RGBPLOT3 RGBPLOT COLORMAP COLORBAR PLOT PLOT3 SURF IMAGE AXES SET JET LBMAP PARULA
 %
 % ### Color Schemes ###
 %
@@ -28,10 +28,10 @@ function [map,num,typ] = brewermap(N,scheme)
 %
 % Each colorscheme is defined by a set of hand-picked RGB values (nodes).
 % If <N> is greater than the requested colorscheme's number of nodes then:
-% - Sequential and Diverging schemes are interpolated to give larger colormaps.
-% - Qualitative schemes throw an error.
+%  * Sequential and Diverging schemes are interpolated to give larger colormaps.
+%  * Qualitative schemes throw an error.
 % Else:
-% - Exact values from the ColorBrewer sequences are returned for all schemes.
+%  * Exact values from the ColorBrewer sequences are returned for all schemes.
 %
 % # Diverging #
 %
@@ -70,17 +70,17 @@ function [map,num,typ] = brewermap(N,scheme)
 % N = 6;
 % axes('ColorOrder',brewermap(N,'Pastel2'),'NextPlot','replacechildren')
 % X = linspace(0,pi*3,1000);
-% Y = bsxfun(@(x,n)n*sin(x+2*n*pi/N), X.', 1:N);
+% Y = bsxfun(@(x,n)n*sin(x+2*n*pi/N), X(:), 1:N);
 % plot(X,Y, 'linewidth',4)
 %
 % % Multiline plot in a loop:
 % N = 6;
 % set(0,'DefaultAxesColorOrder',brewermap(N,'Accent'))
 % X = linspace(0,pi*3,1000);
-% Y = bsxfun(@(x,n)n*sin(x+2*n*pi/N), X.', 1:N);
+% Y = bsxfun(@(x,n)n*sin(x+2*n*pi/N), X(:), 1:N);
 % for n = 1:N
-% plot(X(:),Y(:,n), 'linewidth',4);
-% hold all
+%     plot(X(:),Y(:,n), 'linewidth',4);
+%     hold all
 % end
 %
 % % New colors for the "colormap" example:
@@ -129,11 +129,11 @@ persistent dcs
 if nargin==0 % Current figure's colormap length and the preselected colorscheme.
 	assert(~isempty(dcs),'You need to preselect a colorscheme before trying this!')
 	[map,num,typ] = cbSample([],dcs);
-elseif nargin==2 % User colormap length and the provided colorscheme.
+elseif nargin==2 % Input colormap length and colorscheme.
 	assert(isnumeric(N),'First argument must be a numeric scalar, or empty.')
 	assert(ischar(scheme)&&isrow(scheme),'Second argument must be a string.')
 	[map,num,typ] = cbSample(N,scheme);
-elseif isnumeric(N) % User colormap length and the preselected colorscheme.
+elseif isnumeric(N) % Input colormap length and the preselected colorscheme.
 	assert(~isempty(dcs),'You need to preselect a colorscheme before trying this!')
 	[map,num,typ] = cbSample(N,dcs);
 else% String
@@ -142,7 +142,7 @@ else% String
 	switch lower(N)
 	case 'demo' % Plot all colorschemes in a figure.
 		cbDemoFig(vec)
-	case 'list' % Return a list of all available colorschemes.
+	case 'list' % Return a list of all colorschemes.
 		[num,typ] = cellfun(@cbSelect,vec,'UniformOutput',false);
 		num = cat(1,num{:});
 		map = vec;
@@ -166,23 +166,15 @@ else
 	assert(isscalar(N)&&isreal(N),'First argument must be a real numeric scalar, or empty.')
 end
 %
+% obtain nodes:
 isr = strncmp('*',tok,1);
-[num,typ,rgb] = cbSelect(tok(1+isr:end));
-%
-if strcmp(typ,'Qualitative')
-	assert(N<=num,'Colorscheme "%s" maximum colormap length: %d. Requested: %d.',tok,num,N)
-else % Diverging / Sequential
-	rgb = rgb(cbIndex(N,num,typ),:); % downsample
-	if N>num % interpolate
-		%map = interp1(1:num,map,linspace(1,num,N),'linear');
-		rgb = interp1(1:num,rgb,linspace(1,num,N),'pchip');
-	end
-end
-%
-if isr
-	map = rgb(N:-1:1,:);
-else
-	map = rgb(1:+1:N,:);
+tok = tok(1+isr:end);
+[num,typ,rgb] = cbSelect(tok);
+% downsample:
+map = rgb(cbIndex(N,num,typ,tok,isr),:);
+% interpolate:
+if N>num
+	map = interp1(1:num,map,linspace(1,num,N),'pchip');
 end
 %
 end
@@ -208,21 +200,26 @@ axh = axes('Parent',cbh, 'Color','none',...
 title(axh,['ColorBrewer Color Schemes (',mfilename,'.m)'], 'Interpreter','none')
 xlabel(axh,'Scheme Nodes')
 ylabel(axh,'Scheme Name')
+axf = get(axh,'FontName');
 %
 for y = 1:ymx
 	[num,typ,rgb] = cbSelect(seq{y});
+	rgb = rgb(cbIndex(num,num,typ,seq{y},false),:); % downsample
 	for x = 1:num
 		patch([x-1,x-1,x,x],[y-1,y,y,y-1],1, 'FaceColor',rgb(x,:), 'Parent',axh)
 	end
-	text(xmx+0.1,y-0.5,typ, 'Parent',axh)
+	text(xmx+0.1,y-0.5,typ, 'Parent',axh, 'FontName',axf)
 end
 %
 end
 %----------------------------------------------------------------------END:cbDemoFig
-function idx = cbIndex(N,num,typ)
+function idx = cbIndex(N,num,typ,tok,isr)
 % Ensure exactly the same colors as in the online ColorBrewer schemes.
 %
-if N<3 % Evenly spaced downsampling:
+if strcmp(typ,'Qualitative')
+	assert(N<=num,'Colorscheme "%s" maximum colormap length: %d. Requested: %d.',tok,num,N)
+	idx = 1:N;
+elseif N<3 % Evenly spaced downsampling:
 	idx = round((1+num)*(1:N)/(1+N));
 elseif strcmp(typ,'Diverging')
 	switch min(N,num)
@@ -263,7 +260,11 @@ elseif strcmp(typ,'Sequential')
 		idx = [1,3,4,6,7,8,10,11,13];
 	end
 else
-	error('The colorscheme type "%s" is not recognised',typ)
+	error('The colorscheme type "%s" is not recognized',typ)
+end
+%
+if isr
+	idx = idx(end:-1:1);
 end
 %
 end
@@ -391,7 +392,7 @@ case 'Qualitative'
 case 'Sequential'
 	num = 9;
 otherwise
-	error('The colorscheme type "%s" is not recognised',typ)
+	error('The colorscheme type "%s" is not recognized',typ)
 end
 %
 end
