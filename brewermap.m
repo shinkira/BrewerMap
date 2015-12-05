@@ -9,7 +9,8 @@ function [map,num,typ] = brewermap(N,scheme)
 % Syntax (basic):
 %  map = brewermap(N,scheme); % Select colormap length, select any colorscheme.
 %  brewermap('demo')          % View a figure showing all ColorBrewer colorschemes.
-%  [...,num,typ] = brewermap(...); % The current colorscheme's number of nodes and type.
+%  schemes = brewermap('list')% Return a list of all ColorBrewer colorschemes.
+%  [map,num,typ] = brewermap(...); % The current colorscheme's number of nodes and type.
 %
 % Syntax (preselect colorscheme):
 %  old = brewermap(scheme); % Preselect any colorscheme, return the previous scheme.
@@ -18,7 +19,7 @@ function [map,num,typ] = brewermap(N,scheme)
 %
 % This product includes color specifications and designs developed by Cynthia Brewer.
 % See the ColorBrewer website for further information about each colorscheme,
-% colorblind suitability, licensing, and citations: http://colorbrewer.org/
+% colour-blind suitability, licensing, and citations: http://colorbrewer.org/
 %
 % See also CUBEHELIX RGBPLOT3 RGBPLOT COLORMAP COLORBAR PLOT PLOT3 SURF IMAGE AXES SET JET LBMAP PARULA
 %
@@ -58,7 +59,7 @@ function [map,num,typ] = brewermap(N,scheme)
 % ### Examples ###
 %
 % % Plot a scheme's RGB values:
-% rgbplot(brewermap(9,'Blues')) % standard
+% rgbplot(brewermap(9,'Blues'))  % standard
 % rgbplot(brewermap(9,'*Blues')) % reversed
 %
 % % View information about a colorscheme:
@@ -66,14 +67,14 @@ function [map,num,typ] = brewermap(N,scheme)
 % num = 12
 % typ = 'Qualitative'
 %
-% % Multiline plot using matrices:
+% % Multi-line plot using matrices:
 % N = 6;
 % axes('ColorOrder',brewermap(N,'Pastel2'),'NextPlot','replacechildren')
 % X = linspace(0,pi*3,1000);
 % Y = bsxfun(@(x,n)n*sin(x+2*n*pi/N), X(:), 1:N);
 % plot(X,Y, 'linewidth',4)
 %
-% % Multiline plot in a loop:
+% % Multi-line plot in a loop:
 % N = 6;
 % set(0,'DefaultAxesColorOrder',brewermap(N,'Accent'))
 % X = linspace(0,pi*3,1000);
@@ -86,7 +87,7 @@ function [map,num,typ] = brewermap(N,scheme)
 % % New colors for the "colormap" example:
 % load spine
 % image(X)
-% colormap(brewermap([],'*YlGnBu'))
+% colormap(brewermap([],'YlGnBu'))
 %
 % % New colors for the "surf" example:
 % [X,Y,Z] = peaks(30);
@@ -95,7 +96,7 @@ function [map,num,typ] = brewermap(N,scheme)
 % axis([-3,3,-3,3,-10,5])
 %
 % % New colors for the "contourcmap" example:
-% brewermap('*PuOr'); % preselect the colorscheme.
+% brewermap('PuOr'); % preselect the colorscheme.
 % load topo
 % load coast
 % figure
@@ -105,40 +106,48 @@ function [map,num,typ] = brewermap(N,scheme)
 % 'TitleString','Contour Intervals in Meters');
 % plotm(lat, long, 'k')
 %
-% ### Input & Output Arguments ###
+% ### Input and Output Arguments ###
 %
 % Inputs (*==default):
 % N = NumericScalar, N>=0, an integer to define the colormap length.
 %   = *[], use the length of the current figure's colormap (see "colormap").
 %   = StringToken, to preselect this ColorBrewer scheme for later use.
 %   = 'demo', create a figure showing all of the ColorBrewer schemes.
+%   = 'list', return a cell array of strings listing all ColorBrewer schemes.
 % scheme = StringToken, a ColorBrewer scheme name to select the colorscheme.
-%        = *none, uses the default colorscheme (must be set previously!).
+%        = *none, use the preselected colorscheme (must be set previously!).
 %
 % Outputs:
 % map = NumericMatrix, size Nx3, a colormap of RGB values between 0 and 1.
 % num = NumericScalar, the number of nodes defining the ColorBrewer scheme.
 % typ = String, the colorscheme type: 'Diverging'/'Qualitative'/'Sequential'.
+% OR
+% schemes = CellArray of Strings, a list of every ColorBrewer scheme.
 %
 % [map,num,typ] = brewermap(*N,*scheme)
+% OR
+% schemes = brewermap('list')
 
 % ### Input Wrangling ###
 %
 persistent dcs
 %
+str = 'A colorscheme must be preselected before calling without a scheme token.';
+%
 if nargin==0 % Current figure's colormap length and the preselected colorscheme.
-	assert(~isempty(dcs),'You need to preselect a colorscheme before trying this!')
+	assert(~isempty(dcs),str)
 	[map,num,typ] = cbSample([],dcs);
 elseif nargin==2 % Input colormap length and colorscheme.
-	assert(isnumeric(N),'First argument must be a numeric scalar, or empty.')
-	assert(ischar(scheme)&&isrow(scheme),'Second argument must be a string.')
+	assert(isnumeric(N),'The first argument must be a numeric scalar, or empty.')
+	assert(ischar(scheme)&&isrow(scheme),'The second argument must be a string.')
 	[map,num,typ] = cbSample(N,scheme);
 elseif isnumeric(N) % Input colormap length and the preselected colorscheme.
-	assert(~isempty(dcs),'You need to preselect a colorscheme before trying this!')
+	assert(~isempty(dcs),str)
 	[map,num,typ] = cbSample(N,dcs);
 else% String
-	assert(ischar(N)&&isrow(N),'First argument must be a string or numeric.')
-	vec = {'BrBG';'PRGn';'PiYG';'PuOr';'RdBu';'RdGy';'RdYlBu';'RdYlGn';'Spectral';'Accent';'Dark2';'Paired';'Pastel1';'Pastel2';'Set1';'Set2';'Set3';'Blues';'BuGn';'BuPu';'GnBu';'Greens';'Greys';'OrRd';'Oranges';'PuBu';'PuBuGn';'PuRd';'Purples';'RdPu';'Reds';'YlGn';'YlGnBu';'YlOrBr';'YlOrRd'};
+	assert(ischar(N)&&isrow(N),'The first argument must be a string or numeric.')
+	% The order of <vec>: case-insensitive sort by type and then name.
+	vec = {'BrBG';'PiYG';'PRGn';'PuOr';'RdBu';'RdGy';'RdYlBu';'RdYlGn';'Spectral';'Accent';'Dark2';'Paired';'Pastel1';'Pastel2';'Set1';'Set2';'Set3';'Blues';'BuGn';'BuPu';'GnBu';'Greens';'Greys';'OrRd';'Oranges';'PuBu';'PuBuGn';'PuRd';'Purples';'RdPu';'Reds';'YlGn';'YlGnBu';'YlOrBr';'YlOrRd'};
 	switch lower(N)
 	case 'demo' % Plot all colorschemes in a figure.
 		cbDemoFig(vec)
@@ -192,7 +201,7 @@ if ishghandle(cbh)
 	delete(axh);
 else
 	cbh = figure('HandleVisibility','callback', 'IntegerHandle','off',...
-	'NumberTitle','off', 'Name',[mfilename,' Demo'],'Color','white');
+		'NumberTitle','off', 'Name',[mfilename,' Demo'],'Color','white');
 end
 %
 axh = axes('Parent',cbh, 'Color','none',...
@@ -219,10 +228,12 @@ function idx = cbIndex(N,num,typ,tok,isr)
 if strcmp(typ,'Qualitative')
 	assert(N<=num,'Colorscheme "%s" maximum colormap length: %d. Requested: %d.',tok,num,N)
 	idx = 1:N;
-elseif N<3 % Evenly spaced downsampling:
-	idx = round((1+num)*(1:N)/(1+N));
 elseif strcmp(typ,'Diverging')
 	switch min(N,num)
+	case 1 % extrapolated
+		idx = 8;
+	case 2 % extrapolated
+		idx = [4,12];
 	case 3
 		idx = [5,8,11];
 	case 4
@@ -244,6 +255,10 @@ elseif strcmp(typ,'Diverging')
 	end
 elseif strcmp(typ,'Sequential')
 	switch min(N,num)
+	case 1 % extrapolated
+		idx = 6;
+	case 2 % extrapolated
+		idx = [4,8];
 	case 3
 		idx = [3,6,9];
 	case 4
@@ -276,11 +291,11 @@ switch lower(tok) % ColorName
 case 'brbg' % BrBG
 	rgb = [84,48,5;140,81,10;166,97,26;191,129,45;216,179,101;223,194,125;246,232,195;245,245,245;199,234,229;128,205,193;90,180,172;53,151,143;1,133,113;1,102,94;0,60,48];
 	typ = 'Diverging';
-case 'prgn' % PRGn
-	rgb = [64,0,75;118,42,131;123,50,148;153,112,171;175,141,195;194,165,207;231,212,232;247,247,247;217,240,211;166,219,160;127,191,123;90,174,97;0,136,55;27,120,55;0,68,27];
-	typ = 'Diverging';
 case 'piyg' % PiYG
 	rgb = [142,1,82;197,27,125;208,28,139;222,119,174;233,163,201;241,182,218;253,224,239;247,247,247;230,245,208;184,225,134;161,215,106;127,188,65;77,172,38;77,146,33;39,100,25];
+	typ = 'Diverging';
+case 'prgn' % PRGn
+	rgb = [64,0,75;118,42,131;123,50,148;153,112,171;175,141,195;194,165,207;231,212,232;247,247,247;217,240,211;166,219,160;127,191,123;90,174,97;0,136,55;27,120,55;0,68,27];
 	typ = 'Diverging';
 case 'puor' % PuOr
 	rgb = [127,59,8;179,88,6;230,97,1;224,130,20;241,163,64;253,184,99;254,224,182;247,247,247;216,218,235;178,171,210;153,142,195;128,115,172;94,60,153;84,39,136;45,0,75];
