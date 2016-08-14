@@ -6,14 +6,13 @@ The complete palette of ColorBrewer colormaps for MATLAB. Simple selection by sc
 
 One function provides the complete selection of the ColorBrewer colorschemes, especially intended for mapping and plots with attractive, distinguishable colors.
 
-
 Simple to use: only the the colormap length and the colorscheme name are needed to select and define an output colormap. The colorscheme can be preselected by the user, after which only the colormap length is required to define an output colormap.
 
-The function can be used as a drop-in replacement for the inbuilt colormap functions and it is compatible with all MATLAB functions that require a colormap. The function consists of just one M-file that provides all of the ColorBrewer colorschemes (no file-clutter!). Downsampling or interpolation of the nodes occurs automatically (if required) using each scheme's complete palette of nodes. As an option, the colormap can be returned reversed.
+The function can be used as a drop-in replacement for the inbuilt colormap functions and it is compatible with all MATLAB functions that require a colormap. The function consists of just one M-file that provides all of the ColorBrewer colorschemes (no mat file, no third party files, no file-clutter!). Downsampling or interpolation of the nodes occurs automatically, if required (interpolation occurs within the Lab colorspace). As an option, the colormap can be returned reversed.
 
 Calling brewermap('demo') creates a figure that displays all of the ColorBrewer colorschemes.
 
-This product includes color specifications and designs developed by Cynthia Brewer (http://colorbrewer.org/). See the ColorBrewer website for further information about each colorscheme, colorblind suitability, licensing, and citations. This is the only submission on MATLAB File Exchange providing ColorBrewer colorschemes that does NOT break the ColorBrewer license conditions!
+This product includes color specifications and designs developed by Cynthia Brewer (http://colorbrewer.org/). See the ColorBrewer website for further information about each colorscheme, colorblind suitability, licensing, and citations.
 
 ### Examples ###
 
@@ -43,19 +42,19 @@ This product includes color specifications and designs developed by Cynthia Brew
     hold all
     end
     
-    % New colors for the "colormap" example:
+    % New colors for the COLORMAP example:
     load spine
     image(X)
-    colormap(brewermap([],'*YlGnBu'))
+    colormap(brewermap([],'YlGnBu'))
     
-    % New colors for the "surf" example:
+    % New colors for the SURF example:
     [X,Y,Z] = peaks(30);
     surfc(X,Y,Z)
     colormap(brewermap([],'RdYlGn'))
     axis([-3,3,-3,3,-10,5])
     
-    % New colors for the "contourcmap" example:
-    brewermap('*PuOr'); % preselect the colorscheme.
+    % New colors for the CONTOURCMAP example:
+    brewermap('PuOr'); % preselect the colorscheme.
     load topo
     load coast
     figure
@@ -67,16 +66,17 @@ This product includes color specifications and designs developed by Cynthia Brew
 
 ### Note ###
 
-Compared to other functions available on MATLAB File Exchange, this function:
-* Consists of just one convenient M-file (no .mat files).
-* Requires only the standard ColorBrewer scheme name to select the colorscheme.
+Note that the function BREWERMAP:
+* Consists of just one convenient M-file (no .mat files or file clutter).
+* No third-party file dependencies.
+* Interpolates in the Lab colorspace.
+* Requires just the standard ColorBrewer scheme name to select the colorscheme.
 * Supports all ColorBrewer colorschemes.
-* Uses the complete palette for each scheme (eg. Diverging = 15 colors).
-* Outputs the MATLAB standard N-by-3 numeric RGB array.
+* Outputs a MATLAB standard N-by-3 numeric RGB array.
 * Default length is the standard MATLAB default colormap length (same length as the current colormap).
-* Is compatible with all MATLAB functions that use colormaps (eg: "contourcmap").
+* Is compatible with all MATLAB functions that use colormaps (eg: CONTOURCMAP).
 * Includes the option to reverse the colormap color sequence.
-* Does not break ColorBrewer's Apache license conditions.
+* Does not break ColorBrewer's Apache license conditions!
 
 ### Note ###
 
