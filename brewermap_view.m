@@ -1,7 +1,7 @@
 function [map,scheme] = brewermap_view(N,scheme)
 % An interactive figure for ColorBrewer colormap selection. With demo!
 %
-% (c) 2015 Stephen Cobeldick
+% (c) 2016 Stephen Cobeldick
 %
 % View Cynthia Brewer's ColorBrewer colorschemes in a figure.
 %
@@ -22,20 +22,20 @@ function [map,scheme] = brewermap_view(N,scheme)
 %  [map,scheme] = brewermap_view(...)
 %
 % Calling the function with an output argument blocks MATLAB execution until
-% the figure is deleted: the final colormap and parameters are then returned.
+% the figure is deleted: the final colormap and scheme are then returned.
 %
 % See also BREWERMAP CUBEHELIX RGBPLOT COLORMAP COLORMAPEDITOR COLORBAR UICONTROL ADDLISTENER
 %
-% ### Adjust External Colormaps ###
+% ### Adjust Colormaps of Other Figures or Axes ###
+%
+% Very useful! Simply provide a cell array of axes or figure handles when
+% calling this function, and their colormaps will be updated in real-time.
+% Note that MATLAB versions <=2010 only support axes handles for this.
 %
 % % Example:
 % load spine
 % image(X)
 % brewermap_view({gca})
-%
-% Very useful! Simply provide a cell array of axes or figure handles when
-% calling this function, and their colormaps will be updated in real-time.
-% Note that MATLAB versions <=2010 only support axes handles for this.
 %
 % ### Input and Output Arguments ###
 %
@@ -141,14 +141,6 @@ end
 prvN = N;
 prvS = S;
 ghnd = H.fig;
-%
-% Adjust slider if out of range for the selected scheme:
-idx = strcmpi(S,L);
-idy = strcmp('Qualitative',T{idx}) && V(idx)<N;
-if idy
-	N = V(idx);
-	set(H.vSld, 'Value',max(lbd,min(rbd,N)));
-end
 %
 % Update parameter value text:
 set(H.vTxt(1), 'String',sprintf('N = %.0f',N));
@@ -307,7 +299,7 @@ end
 %
 end
 %----------------------------------------------------------------------END:bmvDemo
-% Copyright (c) 2015 Stephen Cobeldick
+% Copyright (c) 2016 Stephen Cobeldick
 %
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
