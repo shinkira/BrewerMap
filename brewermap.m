@@ -19,7 +19,7 @@ function [map,num,typ] = brewermap(N,scheme)
 %
 % See also CUBEHELIX RGBPLOT3 RGBPLOT COLORMAP COLORBAR PLOT PLOT3 SURF IMAGE AXES SET JET LBMAP PARULA
 %
-% ### Color Schemes ###
+%% Color Schemes %%
 %
 % This product includes color specifications and designs developed by Cynthia Brewer.
 % See the ColorBrewer website for further information about each colorscheme,
@@ -35,19 +35,19 @@ function [map,num,typ] = brewermap(N,scheme)
 % Else:
 %  * Exact values from the ColorBrewer sequences are returned for all schemes.
 %
-% # Diverging #
+%%% Diverging
 %
 % Scheme|'BrBG'|'PRGn'|'PiYG'|'PuOr'|'RdBu'|'RdGy'|'RdYlBu'|'RdYlGn'|'Spectral'|
 % ------|------|------|------|------|------|------|--------|--------|----------|
 % Nodes |  11  |  11  |  11  |  11  |  11  |  11  |   11   |   11   |    11    |
 %
-% # Qualitative #
+%%% Qualitative
 %
 % Scheme|'Accent'|'Dark2'|'Paired'|'Pastel1'|'Pastel2'|'Set1'|'Set2'|'Set3'|
 % ------|--------|-------|--------|---------|---------|------|------|------|
 % Nodes |   8    |   8   |   12   |    9    |    8    |   9  |  8   |  12  |
 %
-% # Sequential #
+%%% Sequential
 %
 % Scheme|'Blues'|'BuGn'|'BuPu'|'GnBu'|'Greens'|'Greys'|'OrRd'|'Oranges'|'PuBu'|
 % ------|-------|------|------|------|--------|-------|------|---------|------|
@@ -57,25 +57,25 @@ function [map,num,typ] = brewermap(N,scheme)
 % ------|--------|------|---------|------|------|------|--------|--------|--------|
 % Nodes |   9    |  9   |    9    |  9   |  9   |  9   |   9    |   9    |   9    |
 %
-% ### Examples ###
+%% Examples %%
 %
-% % Plot a scheme's RGB values:
+%%% Plot a scheme's RGB values:
 % rgbplot(brewermap(9,'Blues'))  % standard
 % rgbplot(brewermap(9,'*Blues')) % reversed
 %
-% % View information about a colorscheme:
+%%% View information about a colorscheme:
 % [~,num,typ] = brewermap(0,'Paired')
 % num = 12
 % typ = 'Qualitative'
 %
-% % Multi-line plot using matrices:
+%%% Multi-line plot using matrices:
 % N = 6;
 % axes('ColorOrder',brewermap(N,'Pastel2'),'NextPlot','replacechildren')
 % X = linspace(0,pi*3,1000);
 % Y = bsxfun(@(x,n)n*sin(x+2*n*pi/N), X(:), 1:N);
 % plot(X,Y, 'linewidth',4)
 %
-% % Multi-line plot in a loop:
+%%% Multi-line plot in a loop:
 % N = 6;
 % set(0,'DefaultAxesColorOrder',brewermap(N,'Accent'))
 % X = linspace(0,pi*3,1000);
@@ -85,18 +85,18 @@ function [map,num,typ] = brewermap(N,scheme)
 %     hold all
 % end
 %
-% % New colors for the COLORMAP example:
+%%% New colors for the COLORMAP example:
 % load spine
 % image(X)
 % colormap(brewermap([],'YlGnBu'))
 %
-% % New colors for the SURF example:
+%%% New colors for the SURF example:
 % [X,Y,Z] = peaks(30);
 % surfc(X,Y,Z)
 % colormap(brewermap([],'RdYlGn'))
 % axis([-3,3,-3,3,-10,5])
 %
-% % New colors for the CONTOURCMAP example:
+%%% New colors for the CONTOURCMAP example:
 % brewermap('PuOr'); % preselect the colorscheme.
 % load topo
 % load coast
@@ -107,9 +107,9 @@ function [map,num,typ] = brewermap(N,scheme)
 % 'TitleString','Contour Intervals in Meters');
 % plotm(lat, long, 'k')
 %
-% ### Input and Output Arguments ###
+%% Input and Output Arguments %%
 %
-% Inputs (*==default):
+%%% Inputs (*==default):
 % N = NumericScalar, N>=0, an integer to define the colormap length.
 %   = *[], use the length of the current figure's colormap (see COLORMAP).
 %   = StringToken, to preselect this ColorBrewer scheme for later use.
@@ -118,7 +118,7 @@ function [map,num,typ] = brewermap(N,scheme)
 % scheme = StringToken, a ColorBrewer scheme name to select the colorscheme.
 %        = *none, use the preselected colorscheme (must be set previously!).
 %
-% Outputs:
+%%% Outputs:
 % map = NumericMatrix, size Nx3, a colormap of RGB values between 0 and 1.
 % num = NumericScalar, the number of nodes defining the ColorBrewer scheme.
 % typ = String, the colorscheme type: 'Diverging'/'Qualitative'/'Sequential'.
@@ -129,7 +129,7 @@ function [map,num,typ] = brewermap(N,scheme)
 % OR
 % schemes = brewermap('list')
 
-% ### Input Wrangling ###
+%% Input Wrangling %%
 %
 persistent tok isr
 %
@@ -168,13 +168,13 @@ else% String
 end
 %
 end
-%----------------------------------------------------------------------END:brewermap
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%brewermap
 function tok = bmMatch(vec,str)
 idx = strcmpi(vec,str);
 assert(any(idx),'Colorscheme "%s" is not supported. Check the token tables.',str)
 tok = vec{idx};
 end
-%----------------------------------------------------------------------END:bmMatch
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmMatch
 function [map,num,typ] = bmSample(N,isr,tok)
 % Pick a colorscheme, downsample/interpolate to the requested colormap length.
 %
@@ -204,21 +204,21 @@ if itp
 end
 %
 end
-%----------------------------------------------------------------------END:bmSample
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmSample
 function rgb = bmGammaCor(rgb)
 % Gamma correction of RGB data.
 idx = rgb <= 0.0031306684425005883;
 rgb(idx) = 12.92*rgb(idx);
 rgb(~idx) = real(1.055*rgb(~idx).^0.416666666666666667 - 0.055);
 end
-%----------------------------------------------------------------------END:bmGammaCor
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmGammaCor
 function rgb = bmGammaInv(rgb)
 % Inverse gamma correction of RGB data.
 idx = rgb <= 0.0404482362771076;
 rgb(idx) = rgb(idx)/12.92;
 rgb(~idx) = real(((rgb(~idx) + 0.055)/1.055).^2.4);
 end
-%----------------------------------------------------------------------END:bmGammaInv
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmGammaInv
 function lab = bmRGB2Lab(rgb,wpt,clr) % Nx3 <- Nx3
 % Convert a matrix of RGB values to Lab.
 %
@@ -238,7 +238,7 @@ lab(:,2:3) = bsxfun(@times,[500,200],F(:,1:2)-F(:,2:3));
 lab(:,1) = 116*F(:,2) - 16;
 %
 end
-%----------------------------------------------------------------------END:bmRGB2Lab
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmRGB2Lab
 function rgb = bmLab2RGB(lab,wpt,clr) % Nx3 <- Nx3
 % Convert a matrix of Lab values to RGB.
 %
@@ -258,7 +258,7 @@ rgb = max(0,min(1, bmGammaCor( xyz * [...
 	] / clr ))); % Remember to include my license when copying my implementation.
 %
 end
-%----------------------------------------------------------------------END:cbLab2RGB
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%cbLab2RGB
 function bmDemoFig(seq)
 % Creates a figure showing all of the ColorBrewer colorschemes.
 %
@@ -292,7 +292,7 @@ for y = 1:ymx
 end
 %
 end
-%----------------------------------------------------------------------END:bmDemoFig
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmDemoFig
 function [idx,itp] = bmIndex(N,num,typ,isr)
 % Ensure exactly the same colors as in the online ColorBrewer schemes.
 %
@@ -356,7 +356,7 @@ if isr
 end
 %
 end
-%----------------------------------------------------------------------END:bmIndex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmIndex
 function [num,typ,rgb] = bmSelect(tok)
 % Return the length, type and RGB values of any colorscheme.
 %
@@ -484,7 +484,7 @@ switch typ
 end
 %
 end
-%----------------------------------------------------------------------END:bmSelect
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmSelect
 % Code and Implementation:
 % Copyright (c) 2016 Stephen Cobeldick
 % Color Specifications Only:
@@ -500,4 +500,4 @@ end
 % distributed under the License is distributed on an "AS IS" BASIS,
 % WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 % See the License for the specific language governing permissions and limitations under the License.
-%----------------------------------------------------------------------END:license
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%license
