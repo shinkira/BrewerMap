@@ -192,7 +192,7 @@ end
 	function bmvSldr(~,~)
 		% Update the slider position.
 		%
-		N = get(H.vSld,'Value');
+		N = round(get(H.vSld,'Value'));
 		%
 		bmvUpDt()
 	end
