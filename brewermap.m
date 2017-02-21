@@ -507,15 +507,12 @@ end
 % include the following acknowledgment: "This product includes color
 % specifications and designs developed by Cynthia Brewer
 % (http://colorbrewer.org/)." Alternately, this acknowledgment may appear in the
-% software itself, if and wherever such third-party acknowledgments normally
-% appear.
+% software itself, if and wherever such third-party acknowledgments normally appear.
 % 
 % 4. The name "ColorBrewer" must not be used to endorse or promote products
 % derived from this software without prior written permission. For written
 % permission, please contact Cynthia Brewer at cbrewer@psu.edu.
 % 
 % 5. Products derived from this software may not be called "ColorBrewer", nor
-% may "ColorBrewer" appear in their name, without prior written permission of
-% Cynthia Brewer.
-%----------------------------------------------------------------------END:license
+% may "ColorBrewer" appear in their name, without prior written permission of Cynthia Brewer.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%license
