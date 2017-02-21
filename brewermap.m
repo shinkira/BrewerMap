@@ -1,18 +1,18 @@
 function [map,num,typ] = brewermap(N,scheme)
 % The complete selection of ColorBrewer colorschemes (RGB colormaps).
 %
-% (c) 2016 Stephen Cobeldick
+% (c) 2017 Stephen Cobeldick
 %
 % Returns any RGB colormap from the ColorBrewer colorschemes, especially
 % intended for mapping and plots with attractive, distinguishable colors.
 %
-% Syntax (basic):
+%%% Syntax (basic):
 %  map = brewermap(N,scheme); % Select colormap length, select any colorscheme.
 %  brewermap('demo')          % View a figure showing all ColorBrewer colorschemes.
 %  schemes = brewermap('list')% Return a list of all ColorBrewer colorschemes.
 %  [map,num,typ] = brewermap(...); % The current colorscheme's number of nodes and type.
 %
-% Syntax (preselect colorscheme):
+%%% Syntax (preselect colorscheme):
 %  old = brewermap(scheme); % Preselect any colorscheme, return the previous scheme.
 %  map = brewermap(N);      % Use preselected scheme, select colormap length.
 %  map = brewermap;         % Use preselected scheme, length same as current figure's colormap.
@@ -109,7 +109,7 @@ function [map,num,typ] = brewermap(N,scheme)
 %
 %% Input and Output Arguments %%
 %
-%%% Inputs (*==default):
+%%% Inputs (*=default):
 % N = NumericScalar, N>=0, an integer to define the colormap length.
 %   = *[], use the length of the current figure's colormap (see COLORMAP).
 %   = StringToken, to preselect this ColorBrewer scheme for later use.
@@ -191,45 +191,44 @@ end
 map = rgb(idx,:);
 % interpolate:
 if itp
-	wpt = [0.964202880859375,1,0.82489013671875]; % whitepoint
-	clr = [... % colorant
-		0.4360656738281250,0.2224884033203125,0.0139160156250000;...
-		0.3851470947265625,0.7168731689453125,0.0970764160156250;...
-		0.1430664062500000,0.0606079101562500,0.7140960693359375;...
-		];
+	M = [3.2406,-1.5372,-0.4986;-0.9689,1.8758,0.0415;0.0557,-0.2040,1.0570];
+	wpt = [0.95047,1,1.08883]; % D65
 	%
-	map = bmRGB2Lab(map,wpt,clr);
+	map = bmRGB2Lab(map,M,wpt); % optional
+	%
+	% Extrapolate a small amount at both ends:
+	%vec = linspace(0,num+1,N+2);
+	%map = interp1(1:num,map,vec(2:end-1),'linear','extrap');
+	% Interpolation completely within ends:
 	map = interp1(1:num,map,linspace(1,num,N),'spline');
-	map = bmLab2RGB(map,wpt,clr);
+	%
+	map = bmLab2RGB(map,M,wpt); % optional
 end
 %
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmSample
 function rgb = bmGammaCor(rgb)
 % Gamma correction of RGB data.
-idx = rgb <= 0.0031306684425005883;
-rgb(idx) = 12.92*rgb(idx);
-rgb(~idx) = real(1.055*rgb(~idx).^0.416666666666666667 - 0.055);
+idx = rgb <= 0.0031308;
+rgb(idx) = 12.92 * rgb(idx);
+rgb(~idx) = real(1.055 * rgb(~idx).^(1/2.4) - 0.055);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmGammaCor
 function rgb = bmGammaInv(rgb)
 % Inverse gamma correction of RGB data.
-idx = rgb <= 0.0404482362771076;
-rgb(idx) = rgb(idx)/12.92;
-rgb(~idx) = real(((rgb(~idx) + 0.055)/1.055).^2.4);
+idx = rgb <= 0.04045;
+rgb(idx) = rgb(idx) / 12.92;
+rgb(~idx) = real(((rgb(~idx) + 0.055) / 1.055).^2.4);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmGammaInv
-function lab = bmRGB2Lab(rgb,wpt,clr) % Nx3 <- Nx3
+function lab = bmRGB2Lab(rgb,M,wpt) % Nx3 <- Nx3
 % Convert a matrix of RGB values to Lab.
 %
-%lab = applycform(rgb,makecform('srgb2lab'))
+%applycform(rgb,makecform('srgb2lab','AdaptedWhitePoint',wpt))
 %
 % RGB -> XYZ:
-xyz = bmGammaInv(rgb) * clr * [...
-	+1.00003273776446530e+0,+1.94861137216967560e-5,-1.06895905858800380e-5;...
-	+1.65909673844090440e-5,+0.99999563134877756e+0,+1.80109293897307010e-5;...
-	-5.32428793910688650e-5,-1.74761184963470590e-5,+0.99971634242247531e+0;...
-	]; % Remember to include my license when copying my implementation.
+xyz = (M \ bmGammaInv(rgb.')).';
+% Remember to include my license when copying my implementation.
 % XYZ to Lab:
 xyz = bsxfun(@rdivide,xyz,wpt);
 idx = xyz>(6/29)^3;
@@ -239,10 +238,10 @@ lab(:,1) = 116*F(:,2) - 16;
 %
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmRGB2Lab
-function rgb = bmLab2RGB(lab,wpt,clr) % Nx3 <- Nx3
+function rgb = bmLab2RGB(lab,M,wpt) % Nx3 <- Nx3
 % Convert a matrix of Lab values to RGB.
 %
-%rgb = applycform(lab,makecform('lab2srgb'));
+%applycform(lab,makecform('lab2srgb','AdaptedWhitePoint',wpt))
 %
 % Lab -> XYZ
 tmp = bsxfun(@rdivide,lab(:,[2,1,3]),[500,Inf,-200]);
@@ -250,12 +249,9 @@ tmp = bsxfun(@plus,tmp,(lab(:,1)+16)/116);
 idx = tmp>(6/29);
 tmp = idx.*(tmp.^3) + ~idx.*(3*(6/29)^2*(tmp-4/29));
 xyz = bsxfun(@times,tmp,wpt);
+% Remember to include my license when copying my implementation.
 % XYZ -> RGB
-rgb = max(0,min(1, bmGammaCor( xyz * [...
-	+0.99996726419981874e+0,-1.9485374087409345e-5,+1.0692624647277993e-5;...
-	-1.65914559373606110e-5,+1.0000043686787559e+0,-1.8016295888420575e-5;...
-	+5.32559529432541370e-5,+1.7480115753747139e-5,+1.0002837383164995e+0;...
-	] / clr ))); % Remember to include my license when copying my implementation.
+rgb = max(0,min(1, bmGammaCor(xyz * M.')));
 %
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%cbLab2RGB
@@ -486,7 +482,7 @@ end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmSelect
 % Code and Implementation:
-% Copyright (c) 2016 Stephen Cobeldick
+% Copyright (c) 2017 Stephen Cobeldick
 % Color Specifications Only:
 % Copyright (c) 2002 Cynthia Brewer, Mark Harrower, and The Pennsylvania State University.
 %

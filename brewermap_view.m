@@ -1,7 +1,7 @@
 function [map,scheme] = brewermap_view(N,scheme)
 % An interactive figure for ColorBrewer colormap selection. With demo!
 %
-% (c) 2016 Stephen Cobeldick
+% (c) 2017 Stephen Cobeldick
 %
 % View Cynthia Brewer's ColorBrewer color schemes in a figure.
 %
@@ -13,7 +13,7 @@ function [map,scheme] = brewermap_view(N,scheme)
 % * Text with the color scheme's type (Diverging/Qualitative/Sequential)
 % * Text with the color scheme's number of nodes (defining colors).
 %
-% Syntax:
+%%% Syntax:
 %  brewermap_view
 %  brewermap_view(N)
 %  brewermap_view(N,scheme)
@@ -40,7 +40,7 @@ function [map,scheme] = brewermap_view(N,scheme)
 %
 %% Input and Output Arguments %%
 %
-%%% Inputs (*==default):
+%%% Inputs (*=default):
 %  N  = NumericScalar, an integer to define the colormap length.
 %     = *[], colormap length of one hundred and twenty-eight (128).
 %     = {axes/figure handles}, their colormaps will be updated by BREWERMAP_VIEW.
@@ -192,7 +192,7 @@ end
 	function bmvSldr(~,~)
 		% Update the slider position.
 		%
-		N = get(H.vSld,'Value');
+		N = round(get(H.vSld,'Value'));
 		%
 		bmvUpDt()
 	end
@@ -308,7 +308,7 @@ set(H.bGrp,'SelectionChangeFcn',ClBk.bmvChgS);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmvPlot
 %
-% Copyright (c) 2016 Stephen Cobeldick
+% Copyright (c) 2017 Stephen Cobeldick
 %
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
