@@ -226,10 +226,10 @@ function lab = bmRGB2Lab(rgb,M,wpt) % Nx3 <- Nx3
 %
 %applycform(rgb,makecform('srgb2lab','AdaptedWhitePoint',wpt))
 %
-% RGB -> XYZ:
+% RGB2XYZ:
 xyz = (M \ bmGammaInv(rgb.')).';
 % Remember to include my license when copying my implementation.
-% XYZ to Lab:
+% XYZ2Lab:
 xyz = bsxfun(@rdivide,xyz,wpt);
 idx = xyz>(6/29)^3;
 F = idx.*(xyz.^(1/3)) + ~idx.*(xyz*(29/6)^2/3+4/29);
@@ -243,14 +243,14 @@ function rgb = bmLab2RGB(lab,M,wpt) % Nx3 <- Nx3
 %
 %applycform(lab,makecform('lab2srgb','AdaptedWhitePoint',wpt))
 %
-% Lab -> XYZ
+% Lab2XYZ
 tmp = bsxfun(@rdivide,lab(:,[2,1,3]),[500,Inf,-200]);
 tmp = bsxfun(@plus,tmp,(lab(:,1)+16)/116);
 idx = tmp>(6/29);
 tmp = idx.*(tmp.^3) + ~idx.*(3*(6/29)^2*(tmp-4/29));
 xyz = bsxfun(@times,tmp,wpt);
 % Remember to include my license when copying my implementation.
-% XYZ -> RGB
+% XYZ2RGB
 rgb = max(0,min(1, bmGammaCor(xyz * M.')));
 %
 end
@@ -499,20 +499,20 @@ end
 %
 % Redistribution and use in source and binary forms, with or without
 % modification, are permitted provided that the following conditions are met:
-% 
+%
 % 1. Redistributions as source code must retain the above copyright notice, this
 % list of conditions and the following disclaimer.
-% 
+%
 % 2. The end-user documentation included with the redistribution, if any, must
 % include the following acknowledgment: "This product includes color
 % specifications and designs developed by Cynthia Brewer
 % (http://colorbrewer.org/)." Alternately, this acknowledgment may appear in the
 % software itself, if and wherever such third-party acknowledgments normally appear.
-% 
+%
 % 4. The name "ColorBrewer" must not be used to endorse or promote products
 % derived from this software without prior written permission. For written
 % permission, please contact Cynthia Brewer at cbrewer@psu.edu.
-% 
+%
 % 5. Products derived from this software may not be called "ColorBrewer", nor
 % may "ColorBrewer" appear in their name, without prior written permission of Cynthia Brewer.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%license
