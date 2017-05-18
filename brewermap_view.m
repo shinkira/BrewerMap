@@ -30,8 +30,8 @@ function [map,scheme] = brewermap_view(N,scheme)
 %
 %%% Example:
 %
-% load spine
-% image(X)
+% S = load('spine');
+% image(S.X)
 % brewermap_view({gca})
 %
 % Very useful! Simply provide a cell array of axes or figure handles when
@@ -77,7 +77,7 @@ end
 if nargin<2
 	scheme = mcs{1+rem(round(now*1e7),numel(mcs))};
 else
-	assert(ischar(scheme)&&isrow(scheme),'Second input <scheme> must be a string.')
+	assert(ischar(scheme)&&isrow(scheme),'Second input <scheme> must be a 1xN char.')
 end
 % Check if a reversed colormap was requested:
 isR = strncmp(scheme,'*',1);
@@ -85,7 +85,7 @@ scheme = scheme(1+isR:end);
 %
 %% Create Figure %%
 %
-% LHS and RHS slider bounds/limits, and slider step sizes:
+% LHS and RHS slider bounds/limits:
 lbd = 1;
 rbd = 128;
 %
@@ -103,8 +103,11 @@ if isempty(H) || ~ishghandle(H.fig)
 	% Create a new figure:
 	ClBk = struct('bmvChgS',@bmvChgS, 'bmvRevM',@bmvRevM,...
 		'bmv2D3D',@bmv2D3D, 'bmvDemo',@bmvDemo, 'bmvSldr',@bmvSldr);
-	H = bmvPlot(N,scheme, mcs, lbd, rbd, xyz, ClBk);
+	H = bmvPlot(mcs, lbd, rbd, xyz, ClBk);
 end
+%
+set(H.bGrp,'SelectedObject',H.bEig(strcmpi(scheme,mcs)));
+set(H.vSld,'Value',round(N));
 %
 bmvUpDt()
 %
@@ -153,6 +156,8 @@ end
 		for k = find(cellfun(@ishghandle,xtH))
 			colormap(xtH{k},map);
 		end
+		%
+		drawnow()
 	end
 %
 	function bmv2D3D(h,~)
@@ -216,7 +221,7 @@ end
 %
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%brewermap_view
-function H = bmvPlot(N,scheme, mcs, lbd, rbd, xyz, ClBk)
+function H = bmvPlot(mcs, lbd, rbd, xyz, ClBk)
 % Draw a new figure with RGBplot axes, ColorBar axes, and uicontrol sliders.
 %
 M = 9; % buttons per column
@@ -281,7 +286,7 @@ H.cbIm(1) = image('Parent',H.cbAx(1), 'CData',C);
 H.cbIm(2) = image('Parent',H.cbAx(2), 'CData',C);
 %
 % Add parameter slider, listener, and corresponding text:
-sv = max(lbd,min(rbd,N));
+sv = mean([lbd,rbd]);
 H.vTxt = uicontrol(H.fig,'Style','text', 'Units','normalized',...
 	'Position',[gap,uih-bth,btw,bth], 'String','X');
 H.vSld = uicontrol(H.fig,'Style','slider', 'Units','normalized',...
@@ -302,8 +307,9 @@ for k = numel(mcs):-1:1
 	H.bEig(k) = uicontrol('Parent',H.bGrp, 'Style','Toggle', 'String',mcs{k},...
 		'Unit','normalized', 'Position',[C(k),R(k),1/4,1/M]);
 end
-set(H.bGrp,'SelectedObject',H.bEig(strcmpi(scheme,mcs)));
 set(H.bGrp,'SelectionChangeFcn',ClBk.bmvChgS);
+%
+drawnow()
 %
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmvPlot

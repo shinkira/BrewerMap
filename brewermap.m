@@ -8,7 +8,7 @@ function [map,num,typ] = brewermap(N,scheme)
 %
 %%% Syntax (basic):
 %  map = brewermap(N,scheme); % Select colormap length, select any colorscheme.
-%  brewermap('demo')          % View a figure showing all ColorBrewer colorschemes.
+%  brewermap('plot')          % View a figure showing all ColorBrewer colorschemes.
 %  schemes = brewermap('list')% Return a list of all ColorBrewer colorschemes.
 %  [map,num,typ] = brewermap(...); % The current colorscheme's number of nodes and type.
 %
@@ -113,7 +113,7 @@ function [map,num,typ] = brewermap(N,scheme)
 % N = NumericScalar, N>=0, an integer to define the colormap length.
 %   = *[], use the length of the current figure's colormap (see COLORMAP).
 %   = StringToken, to preselect this ColorBrewer scheme for later use.
-%   = 'demo', create a figure showing all of the ColorBrewer schemes.
+%   = 'plot', create a figure showing all of the ColorBrewer schemes.
 %   = 'list', return a cell array of strings listing all ColorBrewer schemes.
 % scheme = StringToken, a ColorBrewer scheme name to select the colorscheme.
 %        = *none, use the preselected colorscheme (must be set previously!).
@@ -143,17 +143,17 @@ if nargin==0 % Current figure's colormap length and the preselected colorscheme.
 	[map,num,typ] = bmSample([],isr,tok);
 elseif nargin==2 % Input colormap length and colorscheme.
 	assert(isnumeric(N),'The first argument must be a scalar numeric, or empty.')
-	assert(ischar(scheme)&&isrow(scheme),'The second argument must be a string.')
+	assert(ischar(scheme)&&isrow(scheme),'The second argument must be a 1xN char.')
 	tmp = strncmp('*',scheme,1);
 	[map,num,typ] = bmSample(N,tmp,bmMatch(vec,scheme(1+tmp:end)));
 elseif isnumeric(N) % Input colormap length and the preselected colorscheme.
 	assert(~isempty(tok),str)
 	[map,num,typ] = bmSample(N,isr,tok);
 else% String
-	assert(ischar(N)&&isrow(N),'The first argument must be a string or scalar numeric.')
+	assert(ischar(N)&&isrow(N),'The first argument must be a 1xN char or scalar numeric.')
 	switch lower(N)
-		case 'demo' % Plot all colorschemes in a figure.
-			bmDemoFig(vec)
+		case 'plot' % Plot all colorschemes in a figure.
+			bmPlotFig(vec)
 		case 'list' % Return a list of all colorschemes.
 			[num,typ] = cellfun(@bmSelect,vec,'UniformOutput',false);
 			num = cat(1,num{:});
@@ -255,7 +255,7 @@ rgb = max(0,min(1, bmGammaCor(xyz * M.')));
 %
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%cbLab2RGB
-function bmDemoFig(seq)
+function bmPlotFig(seq)
 % Creates a figure showing all of the ColorBrewer colorschemes.
 %
 persistent cbh axh
@@ -268,7 +268,12 @@ if ishghandle(cbh)
 	delete(axh);
 else
 	cbh = figure('HandleVisibility','callback', 'IntegerHandle','off',...
-		'NumberTitle','off', 'Name',[mfilename,' Demo'],'Color','white');
+		'NumberTitle','off', 'Name',[mfilename,' Plot'],'Color','white');
+	set(cbh,'Units','pixels')
+	pos = get(cbh,'Position');
+	pos(1:2) = pos(1:2) - 123;
+	pos(3:4) = max(pos(3:4),[842,532]);
+	set(cbh,'Position',pos)
 end
 %
 axh = axes('Parent',cbh, 'Color','none',...
@@ -287,8 +292,10 @@ for y = 1:ymx
 	text(xmx+0.1,y-0.5,typ, 'Parent',axh, 'FontName',axf)
 end
 %
+drawnow()
+%
 end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmDemoFig
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmPlotFig
 function [idx,itp] = bmIndex(N,num,typ,isr)
 % Ensure exactly the same colors as in the online ColorBrewer schemes.
 %
