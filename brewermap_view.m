@@ -85,9 +85,10 @@ scheme = scheme(1+isR:end);
 %
 %% Create Figure %%
 %
-% LHS and RHS slider bounds/limits:
+% LHS and RHS slider bounds/limits, and slider step sizes:
 lbd = 1;
 rbd = 128;
+stp = [1,10]; % [minor,major]
 %
 % Define the 3D cube axis order:
 xyz = 'RGB';
@@ -103,11 +104,11 @@ if isempty(H) || ~ishghandle(H.fig)
 	% Create a new figure:
 	ClBk = struct('bmvChgS',@bmvChgS, 'bmvRevM',@bmvRevM,...
 		'bmv2D3D',@bmv2D3D, 'bmvDemo',@bmvDemo, 'bmvSldr',@bmvSldr);
-	H = bmvPlot(mcs, lbd, rbd, xyz, ClBk);
+	H = bmvPlot(ClBk, xyz, lbd, rbd, stp, mcs);
 end
 %
 set(H.bGrp,'SelectedObject',H.bEig(strcmpi(scheme,mcs)));
-set(H.vSld,'Value',round(N));
+set(H.vSld,'Value',max(lbd,min(rbd,N)));
 %
 bmvUpDt()
 %
@@ -221,7 +222,7 @@ end
 %
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%brewermap_view
-function H = bmvPlot(mcs, lbd, rbd, xyz, ClBk)
+function H = bmvPlot(ClBk, xyz, lbd, rbd, stp, mcs)
 % Draw a new figure with RGBplot axes, ColorBar axes, and uicontrol sliders.
 %
 M = 9; % buttons per column
@@ -232,7 +233,6 @@ uih = 0.40; % height of UI control group
 cbw = 0.21; % width of both colorbars
 axh = 1-uih-2*gap; % axes height
 wdt = 1-cbw-2*gap; % axes width
-stp = [1,10]; % slider step
 %
 H.fig = figure('HandleVisibility','callback', 'Color','white',...
 	'IntegerHandle','off', 'NumberTitle','off',...
@@ -275,7 +275,7 @@ H.bRev = uicontrol(H.fig, 'Style','togglebutton', 'Units','normalized',...
 	'Max',1, 'Min',0, 'Callback',ClBk.bmvRevM);
 %
 % Add colorbars:
-C = reshape([1,1,1],1,[],3);
+C(1,1,:) = [1,1,1];
 H.cbAx(1) = axes('Parent',H.fig, 'Visible','off', 'Units','normalized',...
 	'Position',[1-cbw/1,gap,cbw/2-gap,1-2*gap], 'YLim',[0.5,1.5],...
 	'YDir','reverse', 'HitTest','off');
@@ -286,7 +286,7 @@ H.cbIm(1) = image('Parent',H.cbAx(1), 'CData',C);
 H.cbIm(2) = image('Parent',H.cbAx(2), 'CData',C);
 %
 % Add parameter slider, listener, and corresponding text:
-sv = mean([lbd,rbd]);
+sv = mean([lbd,rbd],2);
 H.vTxt = uicontrol(H.fig,'Style','text', 'Units','normalized',...
 	'Position',[gap,uih-bth,btw,bth], 'String','X');
 H.vSld = uicontrol(H.fig,'Style','slider', 'Units','normalized',...
