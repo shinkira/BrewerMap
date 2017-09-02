@@ -77,9 +77,3 @@ Note that the function BREWERMAP:
 * Is compatible with all MATLAB functions that use colormaps (eg: CONTOURCMAP).
 * Includes the option to reverse the colormap color sequence.
 * Does not break ColorBrewer's Apache license conditions!
-
-### Note ###
-
-The following files are part of GitHub/git repository, and are not required for using this submission in MATLAB:
-* .gitattributes
-* README.md
