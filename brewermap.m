@@ -1,7 +1,7 @@
 function [map,num,typ] = brewermap(N,scheme)
 % The complete selection of ColorBrewer colorschemes (RGB colormaps).
 %
-% (c) 2017 Stephen Cobeldick
+% (c) 2014 Stephen Cobeldick
 %
 % Returns any RGB colormap from the ColorBrewer colorschemes, especially
 % intended for mapping and plots with attractive, distinguishable colors.
@@ -33,7 +33,7 @@ function [map,num,typ] = brewermap(N,scheme)
 %    colormap. The interpolation is performed in the Lab colorspace.
 %  * Qualitative schemes are repeated to give a larger colormap.
 % Else:
-%  * Exact values from the ColorBrewer sequences are returned for all schemes.
+%  * Exact values from the ColorBrewer sequences are returned for all colorschemes.
 %
 %%% Diverging
 %
@@ -112,18 +112,18 @@ function [map,num,typ] = brewermap(N,scheme)
 %%% Inputs (*=default):
 % N = NumericScalar, N>=0, an integer to define the colormap length.
 %   = *[], use the length of the current figure's colormap (see COLORMAP).
-%   = StringToken, to preselect this ColorBrewer scheme for later use.
-%   = 'plot', create a figure showing all of the ColorBrewer schemes.
-%   = 'list', return a cell array of strings listing all ColorBrewer schemes.
-% scheme = StringToken, a ColorBrewer scheme name to select the colorscheme.
+%   = CharRowVector, to preselect this ColorBrewer colorscheme for later use.
+%   = 'plot', create a figure showing all of the ColorBrewer colorschemes.
+%   = 'list', return a cell array of strings listing all ColorBrewer colorschemes.
+% scheme = CharRowVector, a ColorBrewer colorscheme name.
 %        = *none, use the preselected colorscheme (must be set previously!).
 %
 %%% Outputs:
 % map = NumericMatrix, size Nx3, a colormap of RGB values between 0 and 1.
-% num = NumericScalar, the number of nodes defining the ColorBrewer scheme.
-% typ = String, the colorscheme type: 'Diverging'/'Qualitative'/'Sequential'.
+% num = NumericScalar, the number of nodes defining the ColorBrewer colorscheme.
+% typ = CharRowVector, the colorscheme type: 'Diverging'/'Qualitative'/'Sequential'.
 % OR
-% schemes = CellArray of Strings, a list of every ColorBrewer scheme.
+% schemes = CellOfCharRowVectors, a list of every ColorBrewer colorscheme.
 %
 % [map,num,typ] = brewermap(*N,*scheme)
 % OR
@@ -133,7 +133,7 @@ function [map,num,typ] = brewermap(N,scheme)
 %
 persistent tok isr
 %
-str = 'A colorscheme must be preselected before calling without a scheme token.';
+str = 'A colorscheme must be preselected before calling without a colorscheme name.';
 %
 % The order of names in <vec>: case-insensitive sort by type and then by name:
 vec = {'BrBG';'PiYG';'PRGn';'PuOr';'RdBu';'RdGy';'RdYlBu';'RdYlGn';'Spectral';'Accent';'Dark2';'Paired';'Pastel1';'Pastel2';'Set1';'Set2';'Set3';'Blues';'BuGn';'BuPu';'GnBu';'Greens';'Greys';'OrRd';'Oranges';'PuBu';'PuBuGn';'PuRd';'Purples';'RdPu';'Reds';'YlGn';'YlGnBu';'YlOrBr';'YlOrRd'};
@@ -191,7 +191,10 @@ end
 map = rgb(idx,:);
 % interpolate:
 if itp
-	M = [3.2406,-1.5372,-0.4986;-0.9689,1.8758,0.0415;0.0557,-0.2040,1.0570];
+	M = [...
+		+3.2406255,-1.5372080,-0.4986286;...
+		-0.9689307,+1.8757561,+0.0415175;...
+		+0.0557101,-0.2040211,+1.0569959];
 	wpt = [0.95047,1,1.08883]; % D65
 	%
 	map = bmRGB2Lab(map,M,wpt); % optional
@@ -208,26 +211,26 @@ end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmSample
 function rgb = bmGammaCor(rgb)
-% Gamma correction of RGB data.
+% Gamma correction of sRGB data.
 idx = rgb <= 0.0031308;
 rgb(idx) = 12.92 * rgb(idx);
 rgb(~idx) = real(1.055 * rgb(~idx).^(1/2.4) - 0.055);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmGammaCor
 function rgb = bmGammaInv(rgb)
-% Inverse gamma correction of RGB data.
+% Inverse gamma correction of sRGB data.
 idx = rgb <= 0.04045;
 rgb(idx) = rgb(idx) / 12.92;
 rgb(~idx) = real(((rgb(~idx) + 0.055) / 1.055).^2.4);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmGammaInv
 function lab = bmRGB2Lab(rgb,M,wpt) % Nx3 <- Nx3
-% Convert a matrix of RGB values to Lab.
+% Convert a matrix of sRGB values to Lab.
 %
 %applycform(rgb,makecform('srgb2lab','AdaptedWhitePoint',wpt))
 %
 % RGB2XYZ:
-xyz = (M \ bmGammaInv(rgb.')).';
+xyz = bmGammaInv(rgb) / M.';
 % Remember to include my license when copying my implementation.
 % XYZ2Lab:
 xyz = bsxfun(@rdivide,xyz,wpt);
@@ -239,7 +242,7 @@ lab(:,1) = 116*F(:,2) - 16;
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmRGB2Lab
 function rgb = bmLab2RGB(lab,M,wpt) % Nx3 <- Nx3
-% Convert a matrix of Lab values to RGB.
+% Convert a matrix of Lab values to sRGB.
 %
 %applycform(lab,makecform('lab2srgb','AdaptedWhitePoint',wpt))
 %
@@ -268,7 +271,8 @@ if ishghandle(cbh)
 	delete(axh);
 else
 	cbh = figure('HandleVisibility','callback', 'IntegerHandle','off',...
-		'NumberTitle','off', 'Name',[mfilename,' Plot'],'Color','white');
+		'NumberTitle','off', 'Name',[mfilename,' Plot'],'Color','white',...
+		'MenuBar','figure', 'Toolbar','none', 'Tag',mfilename);
 	set(cbh,'Units','pixels')
 	pos = get(cbh,'Position');
 	pos(1:2) = pos(1:2) - 123;
@@ -297,7 +301,7 @@ drawnow()
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmPlotFig
 function [idx,itp] = bmIndex(N,num,typ,isr)
-% Ensure exactly the same colors as in the online ColorBrewer schemes.
+% Ensure exactly the same colors as in the online ColorBrewer colorschemes.
 %
 itp = N>num;
 switch typ
@@ -490,7 +494,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmSelect
 % Code and Implementation:
 % Copyright (c) 2017 Stephen Cobeldick
-% Color Specifications Only:
+% Color Values Only:
 % Copyright (c) 2002 Cynthia Brewer, Mark Harrower, and The Pennsylvania State University.
 %
 % Licensed under the Apache License, Version 2.0 (the "License");

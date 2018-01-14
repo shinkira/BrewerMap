@@ -1,17 +1,17 @@
 function [map,scheme] = brewermap_view(N,scheme)
 % An interactive figure for ColorBrewer colormap selection. With demo!
 %
-% (c) 2017 Stephen Cobeldick
+% (c) 2014 Stephen Cobeldick
 %
-% View Cynthia Brewer's ColorBrewer color schemes in a figure.
+% View Cynthia Brewer's ColorBrewer colorschemes in a figure.
 %
-% * Two colorbars give the color scheme in color and grayscale.
+% * Two colorbars give the colorscheme in color and grayscale.
 % * A button toggles between 3D-cube and 2D-lineplot of the RGB values.
-% * A button toggles an endless cycle through the color schemes.
+% * A button toggles an endless cycle through the colorschemes.
 % * A button reverses the colormap.
-% * 35 buttons select any ColorBrewer color scheme.
-% * Text with the color scheme's type (Diverging/Qualitative/Sequential)
-% * Text with the color scheme's number of nodes (defining colors).
+% * 35 buttons select any ColorBrewer colorscheme.
+% * Text with the colorscheme's type (Diverging/Qualitative/Sequential)
+% * Text with the colorscheme's number of nodes (defining colors).
 %
 %%% Syntax:
 %  brewermap_view
@@ -22,7 +22,7 @@ function [map,scheme] = brewermap_view(N,scheme)
 %  [map,scheme] = brewermap_view(...)
 %
 % Calling the function with an output argument blocks MATLAB execution until
-% the figure is deleted: the final colormap and scheme are then returned.
+% the figure is deleted: the final colormap and colorscheme are then returned.
 %
 % See also BREWERMAP CUBEHELIX RGBPLOT COLORMAP COLORMAPEDITOR COLORBAR UICONTROL ADDLISTENER
 %
@@ -44,11 +44,11 @@ function [map,scheme] = brewermap_view(N,scheme)
 %  N  = NumericScalar, an integer to define the colormap length.
 %     = *[], colormap length of one hundred and twenty-eight (128).
 %     = {axes/figure handles}, their colormaps will be updated by BREWERMAP_VIEW.
-%  scheme = String, a ColorBrewer color scheme name.
+%  scheme = CharRowVector, a ColorBrewer colorscheme name.
 %
 %%% Outputs (these block execution until the figure is deleted!):
 %  map    = NumericMatrix, the colormap defined when the figure is closed.
-%  scheme = StringToken, the name of the color scheme given in <map>.
+%  scheme = CharRowVector, the name of the colorscheme given in <map>.
 %
 % [map,scheme] = brewermap_view(N,scheme)
 
@@ -56,10 +56,11 @@ function [map,scheme] = brewermap_view(N,scheme)
 %
 persistent H
 %
+dfn = 128;
 xtH = {};
 % Parse colormap size:
 if nargin<1 || isnumeric(N)&&isempty(N)
-	N = 128;
+	N = dfn;
 elseif iscell(N)&&numel(N)
 	ish = all(1==cellfun('prodofsize',N)&cellfun(@ishghandle,N));
 	assert(ish,'Input <N> may be a cell array of scalar axes or figure handles.')
@@ -73,7 +74,7 @@ end
 %
 [mcs,mun,pyt] = brewermap('list');
 %
-% Parse scheme name:
+% Parse colorscheme name:
 if nargin<2
 	scheme = mcs{1+rem(round(now*1e7),numel(mcs))};
 else
@@ -87,7 +88,7 @@ scheme = scheme(1+isR:end);
 %
 % LHS and RHS slider bounds/limits, and slider step sizes:
 lbd = 1;
-rbd = 128;
+rbd = dfn;
 stp = [1,10]; % [minor,major]
 %
 % Define the 3D cube axis order:
@@ -125,7 +126,7 @@ end
 		%
 		% Get ColorBrewer colormap and grayscale equivalent:
 		[map,num,typ] = brewermap(N,[char(42*ones(1,isR)),scheme]);
-		mag = sum(map*[0.298936;0.587043;0.114021],2);
+		mag = map*[0.298936;0.587043;0.114021];
 		%
 		% Update colorbar values:
 		set(H.cbAx, 'YLim', [0,abs(N)+(N==0)]+0.5);
@@ -180,7 +181,7 @@ end
 	end
 %
 	function bmvChgS(~,e)
-		% Change the color scheme.
+		% Change the colorscheme.
 		%
 		scheme = get(e.NewValue,'String');
 		%
@@ -203,19 +204,33 @@ end
 		bmvUpDt()
 	end
 %
+mov = -1;
 	function bmvDemo(h,~)
-		% Display all ColorBrewer schemes sequentially.
+		% Display all ColorBrewer colorschemes sequentially.
 		%
+		cnt = 0;
 		while ishghandle(h)&&get(h,'Value')
+			cnt = cnt+1;
 			%
-			ids = 1+mod(find(strcmpi(scheme,mcs)),numel(mcs));
-			set(H.bGrp,'SelectedObject',H.bEig(ids));
-			scheme = mcs{ids};
+			if cnt==23
+				cnt = 0;
+				ids = 1+mod(find(strcmpi(scheme,mcs)),numel(mcs));
+				set(H.bGrp,'SelectedObject',H.bEig(ids));
+				scheme = mcs{ids};
+			end
 			%
-			bmvUpDt();
+			if N<=1
+				mov = +1;
+			elseif N>=dfn
+				mov = -1;
+			end
+			N = mov + N;
+			%
+			set(H.vSld,'Value',N)
+			%bmvUpDt();
 			%
 			% Faster/slower:
-			pause(1.2);
+			pause(0.1);
 		end
 		%
 	end
@@ -236,7 +251,8 @@ wdt = 1-cbw-2*gap; % axes width
 %
 H.fig = figure('HandleVisibility','callback', 'Color','white',...
 	'IntegerHandle','off', 'NumberTitle','off',...
-	'Name','ColorBrewer Interactive Scheme Selector');
+	'Name','ColorBrewer Interactive ColorScheme Selector',...
+	'MenuBar','figure', 'Toolbar','none', 'Tag',mfilename);
 %
 % Add 2D lineplot:
 H.ax2D = axes('Parent',H.fig, 'Position',[gap, uih+gap, wdt, axh],...
@@ -294,7 +310,7 @@ H.vSld = uicontrol(H.fig,'Style','slider', 'Units','normalized',...
 	'SliderStep',stp(1,:)/(rbd(1)-lbd(1)), 'Value',sv(1));
 addlistener(H.vSld, 'Value', 'PostSet',ClBk.bmvSldr);
 %
-% Add scheme button group:
+% Add colorscheme button group:
 H.bGrp = uibuttongroup('Parent',H.fig, 'BorderType','none', 'Units','normalized',...
 	'BackgroundColor','white', 'Position',[2*gap+btw,gap,wdt-btw-gap,uih-gap]);
 % Determine button locations:
@@ -302,7 +318,7 @@ Z = 1:numel(mcs);
 Z = Z+(Z>17);
 C = (ceil(Z/M)-1)/4;
 R = (M-1-mod(Z-1,M))/M;
-% Add scheme buttons to group:
+% Add colorscheme buttons to group:
 for k = numel(mcs):-1:1
 	H.bEig(k) = uicontrol('Parent',H.bGrp, 'Style','Toggle', 'String',mcs{k},...
 		'Unit','normalized', 'Position',[C(k),R(k),1/4,1/M]);
