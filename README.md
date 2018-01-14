@@ -10,7 +10,7 @@ Simple to use: only the the colormap length and the colorscheme name are needed 
 
 The function can be used as a drop-in replacement for the inbuilt colormap functions and it is compatible with all MATLAB functions that require a colormap. The function consists of just one M-file that provides all of the ColorBrewer colorschemes (no mat file, no third party files, no file-clutter!). Downsampling or interpolation of the nodes occurs automatically, if required (interpolation occurs within the Lab colorspace). As an option, the colormap can be returned reversed.
 
-Calling brewermap('demo') creates a figure that displays all of the ColorBrewer colorschemes.
+Calling brewermap('plot') creates a figure that displays all of the ColorBrewer colorschemes.
 
 This product includes color specifications and designs developed by Cynthia Brewer (http://colorbrewer.org/). See the ColorBrewer website for further information about each colorscheme, colorblind suitability, licensing, and citations.
 
@@ -77,9 +77,3 @@ Note that the function BREWERMAP:
 * Is compatible with all MATLAB functions that use colormaps (eg: CONTOURCMAP).
 * Includes the option to reverse the colormap color sequence.
 * Does not break ColorBrewer's Apache license conditions!
-
-### Note ###
-
-The following files are part of GitHub/git repository, and are not required for using this submission in MATLAB:
-* .gitattributes
-* README.md
