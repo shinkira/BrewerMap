@@ -330,7 +330,7 @@ drawnow()
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%bmvPlot
 %
-% Copyright (c) 2017 Stephen Cobeldick
+% Copyright (c) 2014 Stephen Cobeldick
 %
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
